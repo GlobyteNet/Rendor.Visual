@@ -1,3 +1,3 @@
-﻿using CorePlayground.Main.OpenGL;
+﻿using Rendor.Visual.GUI;
 
 OpenGLProgram.Run();
