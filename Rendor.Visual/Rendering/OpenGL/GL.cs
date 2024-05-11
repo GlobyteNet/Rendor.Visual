@@ -43,6 +43,7 @@ internal static class GL
         LoadFunction(out glUseProgram, nameof(glUseProgram));
         LoadFunction(out glVertexAttribPointer, nameof(glVertexAttribPointer));
         LoadFunction(out glViewport, nameof(glViewport));
+        LoadFunction(out glUniform2f, nameof(glUniform2f));
         LoadFunction(out glUniform4f, nameof(glUniform4f));
 
         LoadFunction(out glGetError, nameof(glGetError));
@@ -454,7 +455,7 @@ internal static class GL
     delegate void ShaderSourceDelegate(uint shader, int count, string[] source, int[] length);
     static readonly ShaderSourceDelegate glShaderSource;
 
-    public static void ShaderSource(uint shader, int count, string[] source, int[] length)
+    public static void ShaderSource(uint shader, int count, string[] source, int[]? length)
     {
         glShaderSource(shader, count, source, length);
         CheckErrors();
@@ -510,6 +511,19 @@ internal static class GL
 
     #endregion
 
+    #region Uniform 2 Float
+
+    delegate void Uniform2fDelegate(int location, float v0, float v1);
+    static readonly Uniform2fDelegate glUniform2f;
+
+    public static void Uniform2f(int location, float v0, float v1)
+    {
+        glUniform2f(location, v0, v1);
+        CheckErrors();
+    }
+
+    #endregion
+
     #region Uniform 4 Float
 
     delegate void Uniform4fDelegate(int location, float v0, float v1, float v2, float v3);
@@ -536,6 +550,7 @@ internal static class GL
         while ((error = glGetError()) != 0)
         {
             Console.WriteLine($"OpenGL Error: {error}");
+            Debug.Assert(false, $"OpenGL Error: {error}");
         }
     }
 

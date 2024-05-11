@@ -37,9 +37,12 @@ public class Surface
 
     public void DrawTriangle(Point a, Point b, Point c)
     {
-        points.Add(MapCoordsToScreen(a));
-        points.Add(MapCoordsToScreen(b));
-        points.Add(MapCoordsToScreen(c));
+        //points.Add(MapCoordsToScreen(a));
+        //points.Add(MapCoordsToScreen(b));
+        //points.Add(MapCoordsToScreen(c));
+        points.Add(a);
+        points.Add(b);
+        points.Add(c);
     }
 
     private Point MapCoordsToScreen(Point point)
@@ -104,6 +107,11 @@ public class GLRenderer : IRenderer
         set => program.U_Color = value;
     }
 
+    public (float, float) U_Resolution
+    {
+        set => program.U_Resolution = value;
+    }
+
     public Surface Surface { get; } = new Surface();
 
     private GLBuffer<Point> vertexBuffer = new GLBuffer<Point>();
@@ -132,6 +140,7 @@ class OpenGLProgram
         var surface = renderer.Surface;
         surface.Width = window.Width;
         surface.Height = window.Height;
+        renderer.U_Resolution = (window.Width, window.Height);
 
         surface.DrawTriangle(vertices[0], vertices[1], vertices[2]);
         surface.DrawTriangle(vertices[1], vertices[2], vertices[3]);
