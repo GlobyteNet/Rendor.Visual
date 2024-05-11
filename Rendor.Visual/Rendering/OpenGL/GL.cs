@@ -26,7 +26,9 @@ internal static class GL
         LoadFunction(out glCreateShader, nameof(glCreateShader));
         LoadFunction(out glCullFace, nameof(glCullFace));
         LoadFunction(out glDeleteBuffers, nameof(glDeleteBuffers));
+        LoadFunction(out glDeleteProgram, nameof(glDeleteProgram));
         LoadFunction(out glDeleteShader, nameof(glDeleteShader));
+        LoadFunction(out glDeleteVertexArrays, nameof(glDeleteVertexArrays));
         LoadFunction(out glDrawArrays, nameof(glDrawArrays));
         LoadFunction(out glDrawElements, nameof(glDrawElements));
         LoadFunction(out glEnableVertexAttribArray, nameof(glEnableVertexAttribArray));
@@ -271,6 +273,19 @@ internal static class GL
 
     #endregion
 
+    #region Delete Program
+
+    delegate void DeleteProgramDelegate(uint program);
+    static readonly DeleteProgramDelegate glDeleteProgram;
+
+    public static void DeleteProgram(uint program)
+    {
+        glDeleteProgram(program);
+        CheckErrors();
+    }
+
+    #endregion
+
     #region Delete Shader
 
     delegate void DeleteShaderDelegate(uint shader);
@@ -279,6 +294,19 @@ internal static class GL
     public static void DeleteShader(uint shader)
     {
         glDeleteShader(shader);
+        CheckErrors();
+    }
+
+    #endregion
+
+    #region Delete Vertex Array
+
+    delegate void DeleteVertexArraysDelegate(int n, ref uint arrays);
+    static readonly DeleteVertexArraysDelegate glDeleteVertexArrays;
+
+    public static void DeleteVertexArray(uint array)
+    {
+        glDeleteVertexArrays(1, ref array);
         CheckErrors();
     }
 

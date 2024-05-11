@@ -5,7 +5,7 @@ namespace Rendor.Visual.Rendering.OpenGL;
 internal class VertexArray : IGLObject
 {
     public uint Id { get; private init; }
-    public IGLObjectType Type => IGLObjectType.VertexArray;
+    public GLObjectType Type => GLObjectType.VertexArray;
 
     private readonly List<VertexAttribute> Attributes = new();
     private bool Built = false;
@@ -56,6 +56,11 @@ internal class VertexArray : IGLObject
     {
         Debug.Assert(Built, "VertexArray not built");
         GL.BindVertexArray(0);
+    }
+
+    public void Dispose()
+    {
+        GL.DeleteVertexArray(Id);
     }
 
     private struct VertexAttribute

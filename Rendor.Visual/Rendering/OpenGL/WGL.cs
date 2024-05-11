@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Rendering.OpenGL;
 
-internal class WGL : IDisposable
+internal class WGL : GLExtension, IDisposable
 {
     public WGL(Window window)
     {
@@ -25,11 +25,6 @@ internal class WGL : IDisposable
             <wglSwapInterval>(wglGetProcAddress("wglSwapIntervalEXT"));
 
         wglSwapIntervalEXT(1);
-    }
-
-    public void SetViewport(int width, int height)
-    {
-        GL.Viewport(0, 0, width, height);
     }
 
     public void Dispose()

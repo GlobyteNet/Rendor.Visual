@@ -1,13 +1,13 @@
 ﻿namespace Rendor.Visual.Rendering.OpenGL;
 
-internal interface IGLObject
+internal interface IGLObject : IDisposable
 {
     public uint Id { get; }
 
-    public IGLObjectType Type { get; }
+    public GLObjectType Type { get; }
 }
 
-internal enum IGLObjectType
+internal enum GLObjectType
 {
     Buffer,
     VertexArray,

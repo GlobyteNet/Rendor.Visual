@@ -20,11 +20,11 @@ internal class GLBuffer<T> : GLBuffer
     }
 }
 
-internal class GLBuffer : IDisposable, IGLObject
+internal class GLBuffer : IGLObject
 {
     public uint Id { get; protected init; }
 
-    public IGLObjectType Type => IGLObjectType.Buffer;
+    public GLObjectType Type => GLObjectType.Buffer;
 
     public void Bind(BufferTarget target)
     {

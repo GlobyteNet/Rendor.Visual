@@ -5,7 +5,7 @@ namespace Rendor.Visual.Rendering.OpenGL;
 /// <summary>
 /// Wrapps the OpenGL program and provides a way to set its uniform variables.
 /// </summary>
-public class MainGlProgram
+public class MainGlProgram : IDisposable
 {
     public MainGlProgram()
     {
@@ -18,13 +18,18 @@ public class MainGlProgram
             .AddShaderFromString(ShaderType.FragmentShader, fragmentShaderSource)
             .Build();
 
-        uniformColorLocation = GL.GetUniformLocation(program.ID, "u_Color");
-        uniformResolutionLocation = GL.GetUniformLocation(program.ID, "u_Resolution");
+        uniformColorLocation = GL.GetUniformLocation(program.Id, "u_Color");
+        uniformResolutionLocation = GL.GetUniformLocation(program.Id, "u_Resolution");
     }
 
     public void Use()
     {
         program.Use();
+    }
+
+    public void Dispose()
+    {
+        program.Dispose();
     }
 
     public Color U_Color

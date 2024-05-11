@@ -1,4 +1,4 @@
-﻿using Rendor.Visual.GUI;
+﻿using Rendor.Visual.Rendering;
 using Rendor.Visual.Rendering.OpenGL;
 using System.Runtime.InteropServices;
 
@@ -43,7 +43,7 @@ public partial class WindowsWindow : Window
             nSize = (ushort)Marshal.SizeOf(typeof(PIXELFORMATDESCRIPTOR)),
             nVersion = 1,
             dwFlags = (uint)(DWFlags.PFD_DRAW_TO_WINDOW | DWFlags.PFD_SUPPORT_OPENGL | DWFlags.PFD_DOUBLEBUFFER),
-            iPixelType = (byte)DWFlags.PFD_TYPE_RGBA,
+            iPixelType = (byte)IPixelType.PFD_TYPE_RGBA,
             cColorBits = 32,
             cDepthBits = 24,
             cStencilBits = 8
@@ -52,16 +52,9 @@ public partial class WindowsWindow : Window
         int pixelFormat = Win32.ChoosePixelFormat(hdc, ref pfd);
         Win32.SetPixelFormat(hdc, pixelFormat, ref pfd);
 
-        _graphicsDevice = new WGL(this);
-
-        var rect = new RECT();
-        Win32.GetClientRect(hwnd, out rect);
-        var width = rect.Right;
-        var height = rect.Bottom;
-        _graphicsDevice.SetViewport(width, height);
-
-        Width = width;
-        Height = height;
+        Win32.GetClientRect(hwnd, out RECT rect);
+        Width = rect.Right;
+        Height = rect.Bottom;
     }
 
     public override void Show()
@@ -74,6 +67,7 @@ public partial class WindowsWindow : Window
     {
         while (Win32.PeekMessage(out MSG msg, nint.Zero, 0, 0, 1))
         {
+            Console.WriteLine(msg.message);
             Win32.TranslateMessage(ref msg);
             Win32.DispatchMessage(ref msg);
         }
@@ -81,16 +75,15 @@ public partial class WindowsWindow : Window
 
     public override void SwapBuffers()
     {
+        GraphicsDevice.Render(Surface);
         Win32.SwapBuffers(hdc);
     }
 
     public override void Dispose()
     {
         Win32.ReleaseDC(hwnd, hdc);
-        _graphicsDevice.Dispose();
+        GraphicsDevice.Dispose();
     }
-
-    private WGL _graphicsDevice;
 
     private nint hwnd;
     internal nint hdc;
@@ -117,6 +110,18 @@ public partial class WindowsWindow : Window
     }
 
     public override bool IsVisible => _isVisible;
+
+    public override GraphicsDevice GraphicsDevice
+    {
+        get => graphicsdevice;
+        protected set
+        {
+            graphicsdevice = value;
+            graphicsdevice.U_Resolution = (Width, Height);
+        }
+    }
+    private GraphicsDevice graphicsdevice;
+
     private bool _isVisible = true;
 
     const uint CS_HREDRAW = 0x0002;
