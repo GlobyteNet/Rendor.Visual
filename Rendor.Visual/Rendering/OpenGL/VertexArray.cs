@@ -28,6 +28,19 @@ internal class VertexArray : IGLObject
         });
     }
 
+    public void AddPoint4f(GLBuffer buffer, uint index, int stride = 0, int offset = 0)
+    {
+        Attributes.Add(new VertexAttribute
+        {
+            Buffer = buffer,
+            Index = index,
+            Size = 4,
+            Type = DataType.Float,
+            Stride = stride,
+            Offset = offset
+        });
+    }
+
     public void Build()
     {
         GL.BindVertexArray(Id);

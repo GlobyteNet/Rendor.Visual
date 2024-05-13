@@ -6,7 +6,7 @@ namespace Rendor.Visual.Rendering.OpenGL;
 
 internal class WGL : GLExtension, IDisposable
 {
-    public WGL(Window window)
+    public WGL(NativeWindow window)
     {
         this.window = window as WindowsWindow;
 

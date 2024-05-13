@@ -18,7 +18,7 @@ public class MainGlProgram : IDisposable
             .AddShaderFromString(ShaderType.FragmentShader, fragmentShaderSource)
             .Build();
 
-        uniformColorLocation = GL.GetUniformLocation(program.Id, "u_Color");
+        //uniformColorLocation = GL.GetUniformLocation(program.Id, "u_Color");
         uniformResolutionLocation = GL.GetUniformLocation(program.Id, "u_Resolution");
     }
 
@@ -32,14 +32,14 @@ public class MainGlProgram : IDisposable
         program.Dispose();
     }
 
-    public Color U_Color
-    {
-        set
-        {
-            Use();
-            GL.Uniform4f(uniformColorLocation, value.r, value.g, value.b, value.a);
-        }
-    }
+    //public Color U_Color
+    //{
+    //    set
+    //    {
+    //        Use();
+    //        GL.Uniform4f(uniformColorLocation, value.r, value.g, value.b, value.a);
+    //    }
+    //}
 
     public (float, float) U_Resolution
     {

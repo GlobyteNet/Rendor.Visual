@@ -9,6 +9,9 @@ internal static class Win32
 {
     #region user32.dll
 
+    [DllImport("user32.dll")]
+    internal static extern nint BeginPaint(nint hWnd, out PAINTSTRUCT lpPaint);
+
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern nint CreateWindowEx(
         uint dwExStyle, string lpClassName, string lpWindowName, uint dwStyle,
@@ -28,10 +31,17 @@ internal static class Win32
     internal static extern bool DispatchMessage([In] ref MSG lpmsg);
 
     [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool EndPaint(nint hWnd, [In] ref PAINTSTRUCT lpPaint);
+
+    [DllImport("user32.dll")]
     internal static extern bool GetClientRect(nint hWnd, out RECT lpRect);
 
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern nint GetDC(nint hWnd);
+
+    [DllImport("user32.dll")]
+    internal static extern bool InvalidateRect(nint hWnd, nint lpRect, [MarshalAs(UnmanagedType.Bool)] bool bErase);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

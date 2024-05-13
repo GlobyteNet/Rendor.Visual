@@ -16,7 +16,7 @@ public abstract class GraphicsDevice : IDisposable
 
     public abstract void Dispose();
 
-    public abstract Color U_Color { set; }
+    //public abstract Color U_Color { set; }
 
     public abstract (float, float) U_Resolution { set; }
 }

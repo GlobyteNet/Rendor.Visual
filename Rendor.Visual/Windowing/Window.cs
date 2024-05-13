@@ -1,66 +1,48 @@
 ﻿using Rendor.Visual.Drawing;
-using Rendor.Visual.Rendering;
-using Rendor.Visual.Rendering.OpenGL;
-using Rendor.Visual.Windowing.Windows;
-using System.Runtime.InteropServices;
 
-namespace Rendor.Visual.Windowing;
-
-public abstract class Window : IDisposable
+namespace Rendor.Visual.Windowing
 {
-    public static Window Create(BackendType backend)
-    {
-        Window window;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            window = new WindowsWindow();
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("Windows only");
-        }
-
-        GraphicsDevice graphicsDevice;
-        if (backend == BackendType.OpenGL)
-        {
-            graphicsDevice = new GLGraphicsDevice(window);
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("OpenGL only");
-        }
-
-        window.GraphicsDevice = graphicsDevice;
-
-        return window;
-    }
-
-    public abstract void Show();
-
     /// <summary>
-    /// Polls for window events.
+    /// Overridable class for handling window events and rendering.
     /// </summary>
-    public abstract void PollEvents();
+    internal abstract class Window
+    {
+        public Window()
+        {
+            nativeWindow = NativeWindow.Create(BackendType.OpenGL);
+            nativeWindow.OnPaint = Paint;
+            nativeWindow.Show();
+        }
 
-    public abstract void SwapBuffers();
+        public void Run()
+        {
+            while (nativeWindow.IsVisible)
+            {
+                var hadEvents = nativeWindow.PollEvents();
 
-    public abstract void Dispose();
+                if (!hadEvents)
+                {
+                    Thread.Sleep(0);
+                    OnIdle();
+                }
+            }
+        }
 
-    public Surface Surface { get; init; } = new Surface();
+        public abstract void OnRender(Surface surface);
 
-    public abstract GraphicsDevice GraphicsDevice { get; protected set; }
+        public abstract void OnIdle();
 
-    public abstract bool IsVisible { get; }
+        public void Invalidate()
+        {
+            nativeWindow.Invalidate();
+        }
 
-    public int Width { get; protected set; }
+        private void Paint()
+        {
+            OnRender(nativeWindow.Surface);
+            nativeWindow.SwapBuffers();
+        }
 
-    public int Height { get; protected set; }
-}
-
-public enum BackendType
-{
-    OpenGL,
-    Vulkan,
-    DirectX
+        private NativeWindow nativeWindow;
+    }
 }

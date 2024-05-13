@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Windowing.Windows;
 
-public partial class WindowsWindow : Window
+public partial class WindowsWindow : NativeWindow
 {
     private WndProc _wndProc;
 
@@ -63,14 +63,19 @@ public partial class WindowsWindow : Window
         Win32.UpdateWindow(hwnd);
     }
 
-    public override void PollEvents()
+    public override bool PollEvents()
     {
+        bool hasEvents = false;
+
         while (Win32.PeekMessage(out MSG msg, nint.Zero, 0, 0, 1))
         {
+            hasEvents = true;
             Console.WriteLine(msg.message);
             Win32.TranslateMessage(ref msg);
             Win32.DispatchMessage(ref msg);
         }
+
+        return hasEvents;
     }
 
     public override void SwapBuffers()
@@ -85,6 +90,11 @@ public partial class WindowsWindow : Window
         GraphicsDevice.Dispose();
     }
 
+    public override void Invalidate()
+    {
+        Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
+    }
+
     private nint hwnd;
     internal nint hdc;
 
@@ -95,9 +105,11 @@ public partial class WindowsWindow : Window
             case WM_CLOSE:
                 PostQuitMessage(0);
                 return nint.Zero;
-            //case WM_PAINT:
-            //TextOut(hdc, 0, 0, "Hello, Windows!", 14);
-            //return IntPtr.Zero;
+            case WM_PAINT:
+                Win32.BeginPaint(hWnd, out PAINTSTRUCT ps);
+                OnPaint?.Invoke();
+                Win32.EndPaint(hWnd, ref ps);
+                return IntPtr.Zero;
             default:
                 return Win32.DefWindowProc(hWnd, uMsg, wParam, lParam);
         }

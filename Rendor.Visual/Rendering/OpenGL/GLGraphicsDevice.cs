@@ -13,17 +13,18 @@ internal class GLGraphicsDevice : GraphicsDevice
     {
     }
 
-    public GLGraphicsDevice(Window window)
+    public GLGraphicsDevice(NativeWindow window)
     {
         InitExtension(window);
         SetViewport(window.Width, window.Height);
 
         program = new MainGlProgram();
-        vertexBuffer = new GLBuffer<Point>();
+        vertexBuffer = new GLBuffer<ColorPoint>();
         vertexArray = new VertexArray();
 
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        vertexArray.AddPoint3f(vertexBuffer, 0);
+        vertexArray.AddPoint3f(vertexBuffer, 0, 28, 0); // position
+        vertexArray.AddPoint4f(vertexBuffer, 1, 28, 12); // color
         vertexArray.Build();
     }
 
@@ -37,10 +38,10 @@ internal class GLGraphicsDevice : GraphicsDevice
         GL.Viewport(0, 0, width, height);
     }
 
-    public override Color U_Color
-    {
-        set => program.U_Color = value;
-    }
+    //public override Color U_Color
+    //{
+    //    set => program.U_Color = value;
+    //}
 
     public override (float, float) U_Resolution
     {
@@ -66,7 +67,7 @@ internal class GLGraphicsDevice : GraphicsDevice
         program.Dispose();
     }
 
-    private void InitExtension(Window window)
+    private void InitExtension(NativeWindow window)
     {
         if (window is WindowsWindow windowsWindow)
         {
@@ -80,7 +81,7 @@ internal class GLGraphicsDevice : GraphicsDevice
 
     private GLExtension extension;
 
-    private GLBuffer<Point> vertexBuffer;
+    private GLBuffer<ColorPoint> vertexBuffer;
     private VertexArray vertexArray;
     private MainGlProgram program;
 }
