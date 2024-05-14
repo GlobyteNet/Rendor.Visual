@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Rendor.Visual.GUI;
+using System.Numerics;
 
 namespace Rendor.Visual.Drawing;
 
@@ -23,11 +22,19 @@ public class Surface
 
     public void DrawLine(Point a, Point b, Paint paint)
     {
-        var p1 = GetPerpendicularPoints(a, b, paint.LineWidth / 2.0f);
-        var p2 = GetPerpendicularPoints(b, a, paint.LineWidth / 2.0f);
+        var xBasis = b - a;
+        // calculate the perpendicular vector of length 1
+        var yBasis = Point.Normalize(new Point(-xBasis.Y, xBasis.X, 0.0f));
 
-        FillTriangle(p1.Item1, p1.Item2, p2.Item1, paint);
-        FillTriangle(p1.Item1, p2.Item1, p2.Item2, paint);
+        var points = new Point[6];
+        for (int i = 0; i < 6; i++)
+        {
+            // calculate the points of the line by using instance data
+            points[i] = a + xBasis * LineInstance[i].X + yBasis * paint.LineWidth * LineInstance[i].Y;
+        }
+
+        FillTriangle(points[0], points[1], points[2], paint);
+        FillTriangle(points[3], points[4], points[5], paint);
     }
 
     private void DrawLineJoint(Point a, Point b, Point c, Paint paint)
@@ -74,11 +81,7 @@ public class Surface
         }
         else if (paint.LineJoin == LineJoin.Round)
         {
-            var distance = paint.LineWidth / 2.0f / MathF.Tan(angle / 2.0f);
-            var p3 = new Point(b.X + distance * (a.X - b.X), b.Y + distance * (a.Y - b.Y), 0.0f);
-
-            FillTriangle(p1.Item1, p2.Item2, p3, newPaint);
-            FillTriangle(p1.Item2, p2.Item1, p3, newPaint);
+            FillCircle(b, paint.LineWidth, paint);
         }
     }
 
@@ -113,6 +116,17 @@ public class Surface
         DrawLine(b, d, paint);
     }
 
+    public void FillCircle(Point center, float radius, Paint paint)
+    {
+        for (int i = 0; i < CircleInstance.Length - 1; i++)
+        {
+            var a = center + CircleInstance[i] * radius;
+            var b = center + CircleInstance[i + 1] * radius;
+
+            FillTriangle(center, a, b, paint);
+        }
+    }
+
     public void FillRectangle(Point a, Point b, Paint paint)
     {
         var c = new Point(b.X, a.Y, 0.0f);
@@ -127,6 +141,20 @@ public class Surface
         points.Add(new ColorPoint(paint.Color, a));
         points.Add(new ColorPoint(paint.Color, b));
         points.Add(new ColorPoint(paint.Color, c));
+    }
+
+    private static Point[] GetCircleGeometry(int resolution)
+    {
+        var points = new Point[resolution + 2];
+        points[0] = new Point(0.0f, 0.0f, 0.0f);
+
+        for (int i = 0; i <= resolution; i++)
+        {
+            var angle = 2.0f * MathF.PI * i / resolution;
+            points[i + 1] = new Point(0.5f * MathF.Cos(angle), 0.5f * MathF.Sin(angle), 0.0f);
+        }
+
+        return points;
     }
 
     /// <summary>
@@ -159,61 +187,17 @@ public class Surface
         return (p1, p2);
     }
 
-    private Point MapCoordsToScreen(Point point)
-    {
-        Debug.Assert(Width > 0 && Height > 0, "Width and Height must be greater than 0");
+    private Point[] LineInstance =
+    [
+        new Point(0.0f, -0.5f, 0.0f),
+        new Point(1.0f, -0.5f, 0.0f),
+        new Point(1.0f, 0.5f, 0.0f),
+        new Point(0.0f, -0.5f, 0.0f),
+        new Point(1.0f, 0.5f, 0.0f),
+        new Point(0.0f, 0.5f, 0.0f)
+    ];
 
-        var normalized = new Point
-        {
-            X = 2.0f * point.X / Width - 1.0f,
-            Y = 1.0f - 2.0f * point.Y / Height,
-            Z = point.Z
-        };
-
-        return normalized;
-    }
-
-    public int Width { get; set; }
-    public int Height { get; set; }
-}
-
-public class Path
-{
-    public List<Point> Points { get; set; } = new List<Point>();
-}
-
-[StructLayout(LayoutKind.Sequential)] // This is required for the buffer data to work
-public struct ColorPoint
-{
-    public ColorPoint(Color color, Point point)
-    {
-        Color = color;
-        Point = point;
-    }
-
-    public Point Point { get; set; }
-    public Color Color { get; set; }
-}
-
-public class Paint
-{
-    public Color Color { get; set; }
-    public float LineWidth { get; set; } = 10.0f;
-    public LineJoin LineJoin { get; set; } = LineJoin.Bevel;
-}
-
-public enum LineJoin
-{
-    Miter,
-    Bevel,
-    Round
-}
-
-public static class SolidPaint
-{
-    public static Paint Red => new Paint { Color = new Color(1.0f, 0.0f, 0.0f) };
-    public static Paint Green => new Paint { Color = new Color(0.0f, 1.0f, 0.0f) };
-    public static Paint Blue => new Paint { Color = new Color(0.0f, 0.0f, 1.0f) };
+    private Point[] CircleInstance = GetCircleGeometry(16);
 }
 
 public struct Line

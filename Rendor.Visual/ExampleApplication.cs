@@ -1,5 +1,4 @@
 ﻿using Rendor.Visual.Drawing;
-using Rendor.Visual.GUI;
 using Rendor.Visual.Windowing;
 
 namespace Rendor.Visual
@@ -40,8 +39,10 @@ namespace Rendor.Visual
             path.Points.Add(new Point(700.0f, 350.0f, 0.0f));
             path.Points.Add(new Point(600.0f, 300.0f, 0.0f));
             path.Points.Add(new Point(600.0f, 400.0f, 0.0f));
+            path.Points.Add(new Point(300.0f, 110.0f, 0.0f));
+            path.Points.Add(new Point(200.0f, 650.0f, 0.0f));
 
-            surface.DrawPath(path, new Paint { Color = new Color(0.9f, 0.6f, 0.1f), LineWidth = 40.0f, LineJoin = LineJoin.Miter });
+            surface.DrawPath(path, new Paint { Color = new Color(0.9f, 0.6f, 0.1f), LineWidth = 40.0f, LineJoin = LineJoin.Round });
         }
 
         Point[] vertices =

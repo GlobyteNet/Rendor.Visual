@@ -31,6 +31,7 @@ internal static class GL
         LoadFunction(out glDeleteVertexArrays, nameof(glDeleteVertexArrays));
         LoadFunction(out glDrawArrays, nameof(glDrawArrays));
         LoadFunction(out glDrawElements, nameof(glDrawElements));
+        LoadFunction(out glEnable, nameof(glEnable));
         LoadFunction(out glEnableVertexAttribArray, nameof(glEnableVertexAttribArray));
         LoadFunction(out glFlush, nameof(glFlush));
         LoadFunction(out glGenBuffers, nameof(glGenBuffers));
@@ -333,6 +334,19 @@ internal static class GL
     public static void DrawElements(DrawMode mode, int count, DataType type, int indices)
     {
         glDrawElements((uint)mode, count, (uint)type, indices);
+        CheckErrors();
+    }
+
+    #endregion
+
+    #region Enable
+
+    delegate void EnableDelegate(GLCapability cap);
+    static readonly EnableDelegate glEnable;
+
+    public static void Enable(GLCapability cap)
+    {
+        glEnable(cap);
         CheckErrors();
     }
 
@@ -643,4 +657,9 @@ public enum DrawMode : uint
 {
     Triangles = 0x0004,
     TriangleStrip = 0x0005,
+}
+
+public enum GLCapability
+{
+    Multisample = 0x809D,
 }

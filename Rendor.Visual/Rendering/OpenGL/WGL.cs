@@ -25,6 +25,8 @@ internal class WGL : GLExtension, IDisposable
             <wglSwapInterval>(wglGetProcAddress("wglSwapIntervalEXT"));
 
         wglSwapIntervalEXT(1);
+
+        //GL.Enable(GLCapability.Multisample);
     }
 
     public void Dispose()
