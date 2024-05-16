@@ -40,9 +40,9 @@ namespace Rendor.Visual
             path.Points.Add(new Point(600.0f, 300.0f, 0.0f));
             path.Points.Add(new Point(600.0f, 400.0f, 0.0f));
             path.Points.Add(new Point(300.0f, 110.0f, 0.0f));
-            path.Points.Add(new Point(200.0f, 650.0f, 0.0f));
+            path.Points.Add(new Point(500.0f, 400.0f, 0.0f));
 
-            surface.DrawPath(path, new Paint { Color = new Color(0.9f, 0.6f, 0.1f), LineWidth = 40.0f, LineJoin = LineJoin.Round });
+            surface.DrawPath(path, new Paint { Color = new Color(0.9f, 0.6f, 0.1f), LineWidth = 40.0f, LineJoin = LineJoin.Bevel, LineCap = LineCap.Square });
         }
 
         Point[] vertices =
