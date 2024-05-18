@@ -5,9 +5,9 @@ namespace Rendor.Visual.Rendering.OpenGL;
 /// <summary>
 /// Wrapps the OpenGL program and provides a way to set its uniform variables.
 /// </summary>
-public class MainGlProgram : IDisposable
+public class MeshGlProgram : IDisposable
 {
-    public MainGlProgram()
+    public MeshGlProgram()
     {
         var shaderSource = File.ReadAllText("Rendering/OpenGL/Shaders.glsl");
         var vertexShaderSource = GetShader(shaderSource, ShaderType.VertexShader);
@@ -18,7 +18,6 @@ public class MainGlProgram : IDisposable
             .AddShaderFromString(ShaderType.FragmentShader, fragmentShaderSource)
             .Build();
 
-        //uniformColorLocation = GL.GetUniformLocation(program.Id, "u_Color");
         uniformResolutionLocation = GL.GetUniformLocation(program.Id, "u_Resolution");
     }
 
@@ -31,15 +30,6 @@ public class MainGlProgram : IDisposable
     {
         program.Dispose();
     }
-
-    //public Color U_Color
-    //{
-    //    set
-    //    {
-    //        Use();
-    //        GL.Uniform4f(uniformColorLocation, value.r, value.g, value.b, value.a);
-    //    }
-    //}
 
     public (float, float) U_Resolution
     {
@@ -69,8 +59,7 @@ public class MainGlProgram : IDisposable
         return source.Substring(begin, end - begin);
     }
 
-    private int uniformColorLocation;
     private int uniformResolutionLocation;
 
-    private GlProgram program;
+    private GLProgram program;
 }

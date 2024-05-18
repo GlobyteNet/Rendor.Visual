@@ -2,7 +2,7 @@
 
 public enum LineCap
 {
-    Butt,
+    Butt = 0,
     Round,
     Square
 }

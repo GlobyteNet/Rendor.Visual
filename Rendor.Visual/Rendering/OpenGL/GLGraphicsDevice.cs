@@ -7,8 +7,6 @@ namespace Rendor.Visual.Rendering.OpenGL;
 
 internal class GLGraphicsDevice : GraphicsDevice
 {
-    //Window Window;
-
     static GLGraphicsDevice()
     {
     }
@@ -18,7 +16,7 @@ internal class GLGraphicsDevice : GraphicsDevice
         InitExtension(window);
         SetViewport(window.Width, window.Height);
 
-        program = new MainGlProgram();
+        program = new MeshGlProgram();
         vertexBuffer = new GLBuffer<ColorPoint>();
         vertexArray = new VertexArray();
 
@@ -37,11 +35,6 @@ internal class GLGraphicsDevice : GraphicsDevice
     {
         GL.Viewport(0, 0, width, height);
     }
-
-    //public override Color U_Color
-    //{
-    //    set => program.U_Color = value;
-    //}
 
     public override (float, float) U_Resolution
     {
@@ -83,7 +76,7 @@ internal class GLGraphicsDevice : GraphicsDevice
 
     private GLBuffer<ColorPoint> vertexBuffer;
     private VertexArray vertexArray;
-    private MainGlProgram program;
+    private MeshGlProgram program;
 }
 
 abstract class GLExtension

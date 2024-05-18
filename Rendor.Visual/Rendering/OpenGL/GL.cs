@@ -494,12 +494,19 @@ internal static class GL
 
     #region Shader Source
 
-    delegate void ShaderSourceDelegate(uint shader, int count, string[] source, int[] length);
+    delegate void ShaderSourceDelegate(uint shader, int count, string[] source, int[]? length);
     static readonly ShaderSourceDelegate glShaderSource;
 
-    public static void ShaderSource(uint shader, int count, string[] source, int[]? length)
+    /// <summary>
+    /// Sets the source code of the shader. The source code is not compiled until <see cref="CompileShader(uint)" /> is called.
+    /// </summary>
+    /// <param name="shader">The id of the shader object</param>
+    /// <param name="count">Number of strings in the <paramref name="source"/> array which when combined form the source code</param>
+    /// <param name="source">Array of strings that form the source code</param>
+    /// <param name="length">Array of integers that specify the length of each string in the <paramref name="source" /> array</param>
+    public static void ShaderSource(uint shader, string[] source, int[]? length = null)
     {
-        glShaderSource(shader, count, source, length);
+        glShaderSource(shader, source.Length, source, length);
         CheckErrors();
     }
 

@@ -12,7 +12,7 @@ namespace Rendor.Visual.Rendering.OpenGL
             return this;
         }
 
-        public GlProgram Build()
+        public GLProgram Build()
         {
             uint program = GL.CreateProgram();
             foreach (var shader in shaders)
@@ -35,14 +35,14 @@ namespace Rendor.Visual.Rendering.OpenGL
                 GL.DeleteShader(shader);
             }
 
-            return new GlProgram(program);
+            return new GLProgram(program);
         }
 
         private uint CreateShader(ShaderType type, string source)
         {
             uint shader = GL.CreateShader(type);
 
-            GL.ShaderSource(shader, 1, [source], null);
+            GL.ShaderSource(shader, [source]);
             GL.CompileShader(shader);
 
             bool success;

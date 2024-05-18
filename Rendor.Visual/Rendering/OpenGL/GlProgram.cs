@@ -3,11 +3,11 @@
 /// <summary>
 /// Represents an OpenGL built program. Use <see cref="GLProgramBuilder"/> to create a new instance.
 /// </summary>
-internal class GlProgram : IGLObject
+internal class GLProgram : IGLObject
 {
     public uint Id { get; private set; }
 
-    internal GlProgram(uint id)
+    internal GLProgram(uint id)
     {
         Id = id;
     }
