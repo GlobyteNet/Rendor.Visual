@@ -22,5 +22,10 @@ internal class GLProgram : IGLObject
         GL.DeleteProgram(Id);
     }
 
+    public int GetUniformLocation(string name)
+    {
+        return GL.GetUniformLocation(Id, name);
+    }
+
     public GLObjectType Type => GLObjectType.Program;
 }

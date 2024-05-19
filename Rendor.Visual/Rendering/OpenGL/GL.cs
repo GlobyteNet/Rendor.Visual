@@ -30,6 +30,7 @@ internal static class GL
         LoadFunction(out glDeleteShader, nameof(glDeleteShader));
         LoadFunction(out glDeleteVertexArrays, nameof(glDeleteVertexArrays));
         LoadFunction(out glDrawArrays, nameof(glDrawArrays));
+        LoadFunction(out glDrawArraysInstanced, nameof(glDrawArraysInstanced));
         LoadFunction(out glDrawElements, nameof(glDrawElements));
         LoadFunction(out glEnable, nameof(glEnable));
         LoadFunction(out glEnableVertexAttribArray, nameof(glEnableVertexAttribArray));
@@ -44,6 +45,7 @@ internal static class GL
         LoadFunction(out glLinkProgram, nameof(glLinkProgram));
         LoadFunction(out glShaderSource, nameof(glShaderSource));
         LoadFunction(out glUseProgram, nameof(glUseProgram));
+        LoadFunction(out glVertexAttribDivisor, nameof(glVertexAttribDivisor));
         LoadFunction(out glVertexAttribPointer, nameof(glVertexAttribPointer));
         LoadFunction(out glViewport, nameof(glViewport));
         LoadFunction(out glUniform2f, nameof(glUniform2f));
@@ -300,7 +302,7 @@ internal static class GL
 
     #endregion
 
-    #region Delete Vertex Array
+    #region Delete Vertex Array 
 
     delegate void DeleteVertexArraysDelegate(int n, ref uint arrays);
     static readonly DeleteVertexArraysDelegate glDeleteVertexArrays;
@@ -321,6 +323,19 @@ internal static class GL
     public static void DrawArrays(DrawMode mode, int first, int count)
     {
         glDrawArrays((uint)mode, first, count);
+        CheckErrors();
+    }
+
+    #endregion
+
+    #region Draw Arrays Instanced
+
+    delegate void DrawArraysInstancedDelegate(uint mode, int first, int count, int instanceCount);
+    static readonly DrawArraysInstancedDelegate glDrawArraysInstanced;
+
+    public static void DrawArraysInstanced(DrawMode mode, int first, int count, int instanceCount)
+    {
+        glDrawArraysInstanced((uint)mode, first, count, instanceCount);
         CheckErrors();
     }
 
@@ -441,10 +456,10 @@ internal static class GL
 
     #region Get Shader Info Log
 
-    delegate void GetShaderInfoLogDelegate(uint shader, int maxLength, out int length, char[] infoLog);
+    unsafe delegate void GetShaderInfoLogDelegate(uint shader, int maxLength, out int length, byte* infoLog);
     static readonly GetShaderInfoLogDelegate glGetShaderInfoLog;
 
-    public static void GetShaderInfoLog(uint shader, int maxLength, out int length, char[] infoLog)
+    public unsafe static void GetShaderInfoLog(uint shader, int maxLength, out int length, byte* infoLog)
     {
         glGetShaderInfoLog(shader, maxLength, out length, infoLog);
         CheckErrors();
@@ -520,6 +535,19 @@ internal static class GL
     public static void UseProgram(uint program)
     {
         glUseProgram(program);
+        CheckErrors();
+    }
+
+    #endregion
+
+    #region Vertex Attrib Divisor
+
+    delegate void VertexAttribDivisorDelegate(uint index, uint divisor);
+    static readonly VertexAttribDivisorDelegate glVertexAttribDivisor;
+
+    public static void VertexAttribDivisor(uint index, uint divisor)
+    {
+        glVertexAttribDivisor(index, divisor);
         CheckErrors();
     }
 

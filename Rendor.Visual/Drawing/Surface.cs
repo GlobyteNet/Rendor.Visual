@@ -1,10 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Rendor.Visual.Drawing.Commands;
+using Rendor.Visual.Rendering.OpenGL;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Drawing;
 
 public class Surface
 {
+    internal List<DrawCommand> drawCommands = new();
     internal List<ColorPoint> points = new List<ColorPoint>();
 
     public void DrawPath(Path path, Paint paint)
@@ -26,6 +31,18 @@ public class Surface
 
     public void DrawLine(Point a, Point b, Paint paint)
     {
+        if (TryGetLastCommand<DrawLineCommand>(out var lastCommand))
+        {
+            lastCommand.Lines.Add(new Line(a, b, paint.Color, paint.LineWidth));
+        }
+        else
+        {
+            var command = new DrawLineCommand();
+            command.Lines.Add(new Line(a, b, paint.Color, paint.LineWidth));
+            drawCommands.Add(command);
+        }
+        return;
+
         var xBasis = b - a;
         // calculate the perpendicular vector of length 1
         var yBasis = Point.Normalize(new Point(-xBasis.Y, xBasis.X, 0.0f));
@@ -216,6 +233,26 @@ public class Surface
         return points;
     }
 
+    private bool TryGetLastCommand<T>([NotNullWhen(true)] out T? command) where T : DrawCommand
+    {
+        if (drawCommands.Count == 0)
+        {
+            command = null;
+            return false;
+        }
+
+        var lastCommand = drawCommands[^1];
+
+        if (lastCommand is T tCommand)
+        {
+            command = tCommand;
+            return true;
+        }
+        
+        command = null;
+        return false;
+    }
+
     private Point[] LineInstance =
     [
         new Point(0.0f, -0.5f, 0.0f),
@@ -244,16 +281,22 @@ public class Surface
     private Point[] CircleInstance = GetCircleGeometry(16);
 }
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Line
 {
-    public Line(Point start, Point end)
+    public Line(Point start, Point end, Color color, float width)
     {
-        Start = start;
-        End = end;
+        Start = new Point2(start.X, start.Y);
+        End = new Point2(end.X, end.Y);
+        Color = color;
+        Width = width;
     }
 
-    public Point Start { get; set; }
-    public Point End { get; set; }
+    public Point2 Start { get; set; }
+    public Point2 End { get; set; }
+
+    public Color Color { get; set; }
+    public float Width { get; set; }
 
     public Point Intersect(Line another)
     {

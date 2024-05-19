@@ -1,4 +1,5 @@
 ﻿using Rendor.Visual.Drawing;
+using System.Diagnostics;
 
 namespace Rendor.Visual.Windowing
 {
@@ -39,8 +40,15 @@ namespace Rendor.Visual.Windowing
 
         private void Paint()
         {
+            var sw = new Stopwatch();
+            sw.Start();
             OnRender(nativeWindow.Surface);
+            sw.Stop();
+            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds}ms");
+            sw.Restart();
             nativeWindow.SwapBuffers();
+            sw.Stop();
+            Console.WriteLine($"SwapBuffers time: {sw.ElapsedMilliseconds}ms");
         }
 
         private NativeWindow nativeWindow;

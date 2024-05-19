@@ -38,7 +38,7 @@ namespace Rendor.Visual.Rendering.OpenGL
             return new GLProgram(program);
         }
 
-        private uint CreateShader(ShaderType type, string source)
+        private unsafe uint CreateShader(ShaderType type, string source)
         {
             uint shader = GL.CreateShader(type);
 
@@ -49,9 +49,13 @@ namespace Rendor.Visual.Rendering.OpenGL
             GL.GetShaderiv(shader, ParameterName.CompileStatus, out success);
             if (!success)
             {
-                char[] infoLog = new char[512];
-                GL.GetShaderInfoLog(shader, 512, out _, infoLog);
-                Console.WriteLine($"ERROR::SHADER::{type}::COMPILATION_FAILED\n{infoLog}");
+                byte[] infoLog = new byte[512];
+                fixed (byte* infoLogPtr = infoLog)
+                {
+                    GL.GetShaderInfoLog(shader, 512, out _, infoLogPtr);
+                    var infoLogStr = Encoding.ASCII.GetString(infoLog);
+                    Console.WriteLine($"ERROR::SHADER::{infoLogStr}::COMPILATION_FAILED\n{infoLog}");
+                }
             }
 
             return shader;
