@@ -21,6 +21,7 @@ internal class GLGraphicsDevice : GraphicsDevice
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         lineRenderer = new LineGLRenderer();
+        meshRenderer = new MeshGLRenderer();
     }
 
     public override void Clear()
@@ -35,7 +36,11 @@ internal class GLGraphicsDevice : GraphicsDevice
 
     public override (float, float) U_Resolution
     {
-        set => lineRenderer.U_Resolution = value;
+        set
+        {
+            meshRenderer.U_Resolution = value;
+            lineRenderer.U_Resolution = value;
+        }
     }
 
     public override void Render(Surface surface)
@@ -47,6 +52,13 @@ internal class GLGraphicsDevice : GraphicsDevice
             if (command is DrawLineCommand drawLineCommand)
             {
                 lineRenderer.Render(drawLineCommand);
+            } else if (command is DrawMeshCommand drawMeshCommand)
+            {
+                meshRenderer.Render(drawMeshCommand);
+            }
+            else
+            {
+                throw new NotImplementedException("Command not implemented");
             }
         }
     }
@@ -70,4 +82,5 @@ internal class GLGraphicsDevice : GraphicsDevice
     private GLExtension extension;
 
     private LineGLRenderer lineRenderer;
+    private MeshGLRenderer meshRenderer;
 }

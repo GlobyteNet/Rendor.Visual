@@ -1,5 +1,4 @@
 ﻿using Rendor.Visual.Drawing.Commands;
-using Rendor.Visual.Rendering.OpenGL;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
@@ -11,6 +10,12 @@ public class Surface
 {
     internal List<DrawCommand> drawCommands = new();
     internal List<ColorPoint> points = new List<ColorPoint>();
+
+    public void Clear()
+    {
+        drawCommands.Clear();
+        points.Clear();
+    }
 
     public void DrawPath(Path path, Paint paint)
     {
@@ -161,19 +166,6 @@ public class Surface
         FillTriangle(points[0], points[1], points[2], paint);
     }
 
-    private float Distance(Point a, Point b)
-    {
-        var dx = a.X - b.X;
-        var dy = a.Y - b.Y;
-
-        return (float)Math.Sqrt(dx * dx + dy * dy);
-    }
-
-    private float Angle(Point a, Point b, Point c)
-    {
-        return MathF.Atan2(c.Y - b.Y, c.X - b.X) - MathF.Atan2(a.Y - b.Y, a.X - b.X);
-    }
-
     public void DrawTriangle(Point a, Point b, Point c, Paint paint)
     {
         DrawLine(a, b, paint);
@@ -214,9 +206,24 @@ public class Surface
 
     public void FillTriangle(Point a, Point b, Point c, Paint paint)
     {
-        points.Add(new ColorPoint(paint.Color, a));
-        points.Add(new ColorPoint(paint.Color, b));
-        points.Add(new ColorPoint(paint.Color, c));
+        if (TryGetLastCommand<DrawMeshCommand>(out var command))
+        {
+            command.Meshes.Add(new ColorPoint(paint.Color, a));
+            command.Meshes.Add(new ColorPoint(paint.Color, b));
+            command.Meshes.Add(new ColorPoint(paint.Color, c));
+        } 
+        else
+        {
+            var newCommand = new DrawMeshCommand();
+            newCommand.Meshes.Add(new ColorPoint(paint.Color, a));
+            newCommand.Meshes.Add(new ColorPoint(paint.Color, b));
+            newCommand.Meshes.Add(new ColorPoint(paint.Color, c));
+            drawCommands.Add(newCommand);
+        }
+
+        //points.Add(new ColorPoint(paint.Color, a));
+        //points.Add(new ColorPoint(paint.Color, b));
+        //points.Add(new ColorPoint(paint.Color, c));
     }
 
     private static Point[] GetCircleGeometry(int resolution)
@@ -286,14 +293,14 @@ public struct Line
 {
     public Line(Point start, Point end, Color color, float width)
     {
-        Start = new Point2(start.X, start.Y);
-        End = new Point2(end.X, end.Y);
+        Start = new Vector2f(start.X, start.Y);
+        End = new Vector2f(end.X, end.Y);
         Color = color;
         Width = width;
     }
 
-    public Point2 Start { get; set; }
-    public Point2 End { get; set; }
+    public Vector2f Start { get; set; }
+    public Vector2f End { get; set; }
 
     public Color Color { get; set; }
     public float Width { get; set; }

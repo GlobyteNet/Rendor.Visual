@@ -3,5 +3,6 @@
     public enum DrawCommandType
     {
         Line,
+        Mesh
     }
 }

@@ -12,12 +12,25 @@ internal class GLBuffer<T> : GLBuffer
         Id = GL.GenBuffer();
     }
 
-    public void BufferData(T[] data, BufferTarget target, BufferUsage usageHint)
+    public unsafe void BufferData(T[] data, BufferTarget target, BufferUsage usageHint)
     {
         GL.BindBuffer(target, Id);
 
-        GL.BufferData(target, data, usageHint);
+        var newSize = data.Length * sizeof(T);
+
+        if (size >= newSize)
+        {
+            GL.BufferSubData(target, 0, data);
+            return;
+        }
+        else
+        {
+            size = newSize;
+            GL.BufferData(target, data, usageHint);
+        }
     }
+
+    private int size = 0;
 }
 
 internal class GLBuffer : IGLObject

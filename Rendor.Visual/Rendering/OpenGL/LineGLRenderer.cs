@@ -1,6 +1,5 @@
 ﻿using Rendor.Visual.Drawing;
 using Rendor.Visual.Drawing.Commands;
-using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Rendering.OpenGL
 {
@@ -10,7 +9,7 @@ namespace Rendor.Visual.Rendering.OpenGL
         {
             program = new LineGLProgram();
             vertexBuffer = new GLBuffer<Line>();
-            lineInstanceBuffer = new GLBuffer<Point2>();
+            lineInstanceBuffer = new GLBuffer<Vector2f>();
             vertexArray = new VertexArray();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -43,73 +42,19 @@ namespace Rendor.Visual.Rendering.OpenGL
             set => program.U_Resolution = value;
         }
 
-        //private ColorPoint[] ToPoints(DrawLineCommand command)
-        //{
-        //    var points = new List<ColorPoint>();
-
-        //    for (var i = 0; i < command.Lines.Count; i++)
-        //    {
-        //        var a = command.Lines[i].Start;
-        //        var b = command.Lines[i].End;
-
-        //        var xBasis = b - a;
-        //        // calculate the perpendicular vector of length 1
-        //        var yBasis = Point.Normalize(new Point(-xBasis.Y, xBasis.X, 0.0f));
-
-        //        for (int j = 0; j < 6; j++)
-        //        {
-        //            // calculate the points of the line by using instance data
-        //            var point = a + xBasis * LineInstance[j].X + yBasis * command.Lines[i].Width * LineInstance[j].Y;
-        //            points.Add(new ColorPoint(command.Lines[i].Color, point));
-        //        }
-
-        //    }
-
-        //    return points.ToArray();
-        //}
-
         private GLBuffer<Line> vertexBuffer;
-        private GLBuffer<Point2> lineInstanceBuffer;
+        private GLBuffer<Vector2f> lineInstanceBuffer;
         private VertexArray vertexArray;
         private LineGLProgram program;
 
-        private Point2[] LineInstance =
+        private Vector2f[] LineInstance =
         [
-            new Point2(0.0f, -0.5f),
-            new Point2(1.0f, -0.5f),
-            new Point2(1.0f, 0.5f),
-            new Point2(0.0f, -0.5f),
-            new Point2(1.0f, 0.5f),
-            new Point2(0.0f, 0.5f)
+            new Vector2f(0.0f, -0.5f),
+            new Vector2f(1.0f, -0.5f),
+            new Vector2f(1.0f, 0.5f),
+            new Vector2f(0.0f, -0.5f),
+            new Vector2f(1.0f, 0.5f),
+            new Vector2f(0.0f, 0.5f)
         ];
-    }
-
-    public struct LinePoint
-    {
-        public LinePoint(Point point, Color color, float width)
-        {
-            Point = point;
-            Color = color;
-            Width = width;
-        }
-
-        public Point Point { get; private set; }
-            
-        public Color Color { get; private set; }
-
-        public float Width { get; private set; }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Point2
-    {
-        public Point2(float x, float y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public float X { get; set; }
-        public float Y { get; set; }
     }
 }
