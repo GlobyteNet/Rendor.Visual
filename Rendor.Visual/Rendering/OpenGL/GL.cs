@@ -16,6 +16,7 @@ internal static class GL
 
         LoadFunction(out glAttachShader, nameof(glAttachShader));
         LoadFunction(out glBindBuffer, nameof(glBindBuffer));
+        LoadFunction(out glBindBufferBase, nameof(glBindBufferBase));
         LoadFunction(out glBindVertexArray, nameof(glBindVertexArray));
         LoadFunction(out glBufferData, nameof(glBufferData));
         LoadFunction(out glBufferSubData, nameof(glBufferSubData));
@@ -25,6 +26,7 @@ internal static class GL
         LoadFunction(out glCreateProgram, nameof(glCreateProgram));
         LoadFunction(out glCreateShader, nameof(glCreateShader));
         LoadFunction(out glCullFace, nameof(glCullFace));
+        LoadFunction(out glDebugMessageCallback, nameof(glDebugMessageCallback));
         LoadFunction(out glDeleteBuffers, nameof(glDeleteBuffers));
         LoadFunction(out glDeleteProgram, nameof(glDeleteProgram));
         LoadFunction(out glDeleteShader, nameof(glDeleteShader));
@@ -41,9 +43,11 @@ internal static class GL
         LoadFunction(out glGetProgramiv, nameof(glGetProgramiv));
         LoadFunction(out glGetShaderInfoLog, nameof(glGetShaderInfoLog));
         LoadFunction(out glGetShaderiv, nameof(glGetShaderiv));
+        LoadFunction(out glGetUniformBlockIndex, nameof(glGetUniformBlockIndex));
         LoadFunction(out glGetUniformLocation, nameof(glGetUniformLocation));
         LoadFunction(out glLinkProgram, nameof(glLinkProgram));
         LoadFunction(out glShaderSource, nameof(glShaderSource));
+        LoadFunction(out glUniformBlockBinding, nameof(glUniformBlockBinding));
         LoadFunction(out glUseProgram, nameof(glUseProgram));
         LoadFunction(out glVertexAttribDivisor, nameof(glVertexAttribDivisor));
         LoadFunction(out glVertexAttribPointer, nameof(glVertexAttribPointer));
@@ -52,6 +56,9 @@ internal static class GL
         LoadFunction(out glUniform4f, nameof(glUniform4f));
 
         LoadFunction(out glGetError, nameof(glGetError));
+
+        Enable(GLCapability.DebugOutput);
+        DebugMessageCallback(debugProc, IntPtr.Zero);
     }
 
     private static GetProcAddressDelegate GetProcAddressFunction()
@@ -95,7 +102,6 @@ internal static class GL
     public static void AttachShader(uint program, uint shader)
     {
         glAttachShader(program, shader);
-        CheckErrors();
     }
 
     #endregion
@@ -115,7 +121,24 @@ internal static class GL
     public static void BindBuffer(BufferTarget target, uint buffer)
     {
         glBindBuffer((uint)target, buffer);
-        CheckErrors();
+    }
+
+    #endregion
+
+    #region Bind Buffer Base
+
+    delegate void BindBufferBaseDelegate(uint target, uint index, uint buffer);
+    static readonly BindBufferBaseDelegate glBindBufferBase;
+
+    /// <summary>
+    /// Binds a buffer object to a buffer target at a specific index. This is used for binding buffer objects to indexed buffer targets.
+    /// </summary>
+    /// <param name="target">The target to which the buffer object is bound</param>
+    /// <param name="index">The index at which the buffer object should be bound</param>
+    /// <param name="buffer">The buffer object to bind</param>
+    public static void BindBufferBase(BufferTarget target, uint index, uint buffer)
+    {
+        glBindBufferBase((uint)target, index, buffer);
     }
 
     #endregion
@@ -128,7 +151,6 @@ internal static class GL
     public static void BindVertexArray(uint array)
     {
         glBindVertexArray(array);
-        CheckErrors();
     }
 
     #endregion
@@ -153,7 +175,6 @@ internal static class GL
         {
             glBufferData((uint)target, size, dataPtr, (uint)usage);
         }
-        CheckErrors();
     }
 
     #endregion
@@ -178,7 +199,6 @@ internal static class GL
         {
             glBufferSubData((uint)target, offset, size, dataPtr);
         }
-        CheckErrors();
     }
 
     #endregion
@@ -191,7 +211,6 @@ internal static class GL
     public static void Clear(ClearBufferMask mask)
     {
         glClear((uint)mask);
-        CheckErrors();
     }
 
     #endregion
@@ -204,7 +223,6 @@ internal static class GL
     public static void ClearColor(float red, float green, float blue, float alpha)
     {
         glClearColor(red, green, blue, alpha);
-        CheckErrors();
     }
 
     #endregion
@@ -217,7 +235,6 @@ internal static class GL
     public static void CompileShader(uint shader)
     {
         glCompileShader(shader);
-        CheckErrors();
     }
 
     #endregion
@@ -230,7 +247,7 @@ internal static class GL
     public static uint CreateProgram()
     {
         var program = glCreateProgram();
-        CheckErrors();
+        
         return program;
     }
 
@@ -244,7 +261,7 @@ internal static class GL
     public static uint CreateShader(ShaderType type)
     {
         var shader = glCreateShader((uint)type);
-        CheckErrors();
+        
         return shader;
     }
 
@@ -258,7 +275,20 @@ internal static class GL
     public static void CullFace(uint mode)
     {
         glCullFace(mode);
-        CheckErrors();
+    }
+
+    #endregion
+
+    #region Debug Message Callback
+
+    delegate void DebugMessageCallbackDelegate(DebugProc callback, IntPtr userParam);
+    static readonly DebugMessageCallbackDelegate glDebugMessageCallback;
+
+    public delegate void DebugProc(ErrorSource source, ErrorType type, uint id, ErrorSeverety severity, int length, string message, IntPtr userParam);
+
+    public static void DebugMessageCallback(DebugProc callback, IntPtr userParam)
+    {
+        glDebugMessageCallback(callback, userParam);
     }
 
     #endregion
@@ -271,7 +301,6 @@ internal static class GL
     public static void DeleteBuffer(uint buffer)
     {
         glDeleteBuffers(1, ref buffer);
-        CheckErrors();
     }
 
     #endregion
@@ -284,7 +313,6 @@ internal static class GL
     public static void DeleteProgram(uint program)
     {
         glDeleteProgram(program);
-        CheckErrors();
     }
 
     #endregion
@@ -297,7 +325,6 @@ internal static class GL
     public static void DeleteShader(uint shader)
     {
         glDeleteShader(shader);
-        CheckErrors();
     }
 
     #endregion
@@ -310,7 +337,6 @@ internal static class GL
     public static void DeleteVertexArray(uint array)
     {
         glDeleteVertexArrays(1, ref array);
-        CheckErrors();
     }
 
     #endregion
@@ -323,7 +349,6 @@ internal static class GL
     public static void DrawArrays(DrawMode mode, int first, int count)
     {
         glDrawArrays((uint)mode, first, count);
-        CheckErrors();
     }
 
     #endregion
@@ -336,7 +361,6 @@ internal static class GL
     public static void DrawArraysInstanced(DrawMode mode, int first, int count, int instanceCount)
     {
         glDrawArraysInstanced((uint)mode, first, count, instanceCount);
-        CheckErrors();
     }
 
     #endregion
@@ -349,7 +373,6 @@ internal static class GL
     public static void DrawElements(DrawMode mode, int count, DataType type, int indices)
     {
         glDrawElements((uint)mode, count, (uint)type, indices);
-        CheckErrors();
     }
 
     #endregion
@@ -362,7 +385,6 @@ internal static class GL
     public static void Enable(GLCapability cap)
     {
         glEnable(cap);
-        CheckErrors();
     }
 
     #endregion
@@ -375,7 +397,6 @@ internal static class GL
     public static void EnableVertexAttribArray(uint index)
     {
         glEnableVertexAttribArray(index);
-        CheckErrors();
     }
 
     #endregion
@@ -388,7 +409,6 @@ internal static class GL
     public static void Flush()
     {
         glFlush();
-        CheckErrors();
     }
 
     #endregion
@@ -407,7 +427,7 @@ internal static class GL
     {
         uint buffer = 0;
         glGenBuffers(1, ref buffer);
-        CheckErrors();
+        
         return buffer;
     }
 
@@ -422,7 +442,7 @@ internal static class GL
     {
         uint array = 0;
         glGenVertexArrays(1, ref array);
-        CheckErrors();
+        
         return array;
     }
 
@@ -436,7 +456,6 @@ internal static class GL
     public static void GetProgramInfoLog(uint program, int maxLength, out int length, byte[] infoLog)
     {
         glGetProgramInfoLog(program, maxLength, out length, infoLog);
-        CheckErrors();
     }
 
     #endregion
@@ -449,7 +468,6 @@ internal static class GL
     public static void GetProgramiv(uint program, ParameterName pname, out bool success)
     {
         glGetProgramiv(program, (uint)pname, out success);
-        CheckErrors();
     }
 
     #endregion
@@ -462,7 +480,6 @@ internal static class GL
     public unsafe static void GetShaderInfoLog(uint shader, int maxLength, out int length, byte* infoLog)
     {
         glGetShaderInfoLog(shader, maxLength, out length, infoLog);
-        CheckErrors();
     }
 
     #endregion
@@ -475,7 +492,26 @@ internal static class GL
     public static void GetShaderiv(uint shader, ParameterName pname, out bool success)
     {
         glGetShaderiv(shader, (uint)pname, out success);
-        CheckErrors();
+    }
+
+    #endregion
+
+    #region Get Uniform Block Index
+
+    delegate uint GetUniformBlockIndexDelegate(uint program, string name);
+    static readonly GetUniformBlockIndexDelegate glGetUniformBlockIndex;
+
+    /// <summary>
+    /// Retrieves the internal index of the uniform block with the specified name. This index can be used to bind the uniform block to a binding point which is then used to bind a specific buffer to it.
+    /// </summary>
+    /// <param name="program">Id of the program object</param>
+    /// <param name="name">Name of the uniform block</param>
+    /// <returns>The internal index of the uniform block</returns>
+    public static uint GetUniformBlockIndex(uint program, string name)
+    {
+        var index = glGetUniformBlockIndex(program, name);
+        
+        return index;
     }
 
     #endregion
@@ -488,7 +524,7 @@ internal static class GL
     public static int GetUniformLocation(uint program, string name)
     {
         var location = glGetUniformLocation(program, name);
-        CheckErrors();
+        
         return location;
     }
 
@@ -502,7 +538,6 @@ internal static class GL
     public static void LinkProgram(uint program)
     {
         glLinkProgram(program);
-        CheckErrors();
     }
 
     #endregion
@@ -522,7 +557,24 @@ internal static class GL
     public static void ShaderSource(uint shader, string[] source, int[]? length = null)
     {
         glShaderSource(shader, source.Length, source, length);
-        CheckErrors();
+    }
+
+    #endregion
+
+    #region Uniform Block Binding
+
+    delegate void UniformBlockBindingDelegate(uint program, uint uniformBlockIndex, uint uniformBlockBinding);
+    static readonly UniformBlockBindingDelegate glUniformBlockBinding;
+
+    /// <summary>
+    /// Binds a uniform block to a binding point. The data in the buffer object bound to the binding point will be used for that uniform block.
+    /// </summary>
+    /// <param name="program">Id of the program object</param>
+    /// <param name="uniformBlockIndex">Index of the uniform block</param>
+    /// <param name="uniformBlockBinding">Binding point to which the uniform block should be bound</param>
+    public static void UniformBlockBinding(uint program, uint uniformBlockIndex, uint uniformBlockBinding)
+    {
+        glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
     }
 
     #endregion
@@ -535,7 +587,6 @@ internal static class GL
     public static void UseProgram(uint program)
     {
         glUseProgram(program);
-        CheckErrors();
     }
 
     #endregion
@@ -548,7 +599,6 @@ internal static class GL
     public static void VertexAttribDivisor(uint index, uint divisor)
     {
         glVertexAttribDivisor(index, divisor);
-        CheckErrors();
     }
 
     #endregion
@@ -570,7 +620,6 @@ internal static class GL
     public static void VertexAttribPointer(uint index, int size, DataType type, bool normalized, int stride, int offset)
     {
         glVertexAttribPointer(index, size, (uint)type, normalized, stride, offset);
-        CheckErrors();
     }
 
     #endregion
@@ -583,7 +632,6 @@ internal static class GL
     public static void Viewport(int x, int y, int width, int height)
     {
         glViewport(x, y, width, height);
-        CheckErrors();
     }
 
     #endregion
@@ -596,7 +644,6 @@ internal static class GL
     public static void Uniform2f(int location, float v0, float v1)
     {
         glUniform2f(location, v0, v1);
-        CheckErrors();
     }
 
     #endregion
@@ -609,7 +656,6 @@ internal static class GL
     public static void Uniform4f(int location, float v0, float v1, float v2, float v3)
     {
         glUniform4f(location, v0, v1, v2, v3);
-        CheckErrors();
     }
 
     #endregion
@@ -619,82 +665,13 @@ internal static class GL
     delegate uint GetErrorDelegate();
     static readonly GetErrorDelegate glGetError;
 
-    [Conditional("DEBUG")]
-    private static void CheckErrors()
+    private static void ErrorCallback(ErrorSource source, ErrorType type, uint id, ErrorSeverety severity, int length, string message, IntPtr userParam)
     {
-        uint error;
-
-        while ((error = glGetError()) != 0)
-        {
-            Console.WriteLine($"OpenGL Error: {error}");
-            Debug.Assert(false, $"OpenGL Error: {error}");
-        }
+        Console.WriteLine($"OpenGL Error: {message}");
+        Debug.Assert(false, $"OpenGL Error: {message}");
     }
 
+    private static DebugProc debugProc = ErrorCallback; // Keep a reference to the delegate so it doesn't get garbage collected
+
     #endregion
-}
-
-public enum ClearBufferMask : uint
-{
-    DepthBufferBit = 0x00000100,
-    StencilBufferBit = 0x00000400,
-    ColorBufferBit = 0x00004000,
-}
-
-public enum ShaderType : uint
-{
-    FragmentShader = 0x8B30,
-    VertexShader = 0x8B31,
-}
-
-public enum BufferTarget : uint
-{
-    ArrayBuffer = 0x8892,
-    ElementArrayBuffer = 0x8893
-}
-
-public enum CullFaceMode : uint
-{
-    Back = 0x0405
-}
-
-public enum ErrorCode : uint
-{
-    NoError = 0,
-    InvalidEnum = 0x0500,
-    InvalidValue = 0x0501,
-    InvalidOperation = 0x0502,
-    StackOverflow = 0x0503,
-    StackUnderflow = 0x0504,
-    OutOfMemory = 0x0505
-}
-
-public enum DataType : uint
-{
-    UnsignedInt = 0x1405,
-    Float = 0x1406,
-}
-
-public enum ParameterName : uint
-{
-    CompileStatus = 0x8B81,
-    LinkStatus = 0x8B82,
-}
-
-public enum BufferUsage : uint
-{
-    StreamDraw = 0x88E0,
-    StaticDraw = 0x88E4,
-    DynamicDraw = 0x88E8,
-}
-
-public enum DrawMode : uint
-{
-    Triangles = 0x0004,
-    TriangleStrip = 0x0005,
-}
-
-public enum GLCapability
-{
-    Multisample = 0x809D,
 }

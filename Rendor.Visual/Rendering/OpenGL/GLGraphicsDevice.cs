@@ -20,8 +20,13 @@ internal class GLGraphicsDevice : GraphicsDevice
 
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        lineRenderer = new LineGLRenderer();
-        meshRenderer = new MeshGLRenderer();
+        ubo = new GLBuffer<Vector2f>();
+        ubo.BufferData(new Vector2f[1], BufferTarget.UniformBuffer, BufferUsage.DynamicDraw);
+
+        GL.BindBufferBase(BufferTarget.UniformBuffer, UBO_BINDING, ubo.Id);
+
+        lineRenderer = new LineGLRenderer(UBO_BINDING);
+        meshRenderer = new MeshGLRenderer(UBO_BINDING);
     }
 
     public override void Clear()
@@ -34,12 +39,11 @@ internal class GLGraphicsDevice : GraphicsDevice
         GL.Viewport(0, 0, width, height);
     }
 
-    public override (float, float) U_Resolution
+    public override Vector2f ScreenResolution
     {
         set
         {
-            meshRenderer.U_Resolution = value;
-            lineRenderer.U_Resolution = value;
+            ubo.BufferData([value], BufferTarget.UniformBuffer, BufferUsage.DynamicDraw);
         }
     }
 
@@ -83,4 +87,7 @@ internal class GLGraphicsDevice : GraphicsDevice
 
     private LineGLRenderer lineRenderer;
     private MeshGLRenderer meshRenderer;
+
+    private GLBuffer<Vector2f> ubo;
+    private const int UBO_BINDING = 0;
 }

@@ -27,5 +27,16 @@ internal class GLProgram : IGLObject
         return GL.GetUniformLocation(Id, name);
     }
 
+    public uint GetUniformBlockIndex(string name)
+    {
+        return GL.GetUniformBlockIndex(Id, name);
+    }
+
+    public void BindUniformBlock(string name, uint binding)
+    {
+        var index = GetUniformBlockIndex(name);
+        GL.UniformBlockBinding(Id, index, binding);
+    }
+
     public GLObjectType Type => GLObjectType.Program;
 }

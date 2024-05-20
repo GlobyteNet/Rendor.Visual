@@ -2,14 +2,14 @@
 
 internal class LineGLProgram : IDisposable
 {
-    public LineGLProgram()
+    public LineGLProgram(uint uboBinding)
     {
         var builder = new GLProgramBuilder();
         program = builder.AddShaderFromString(ShaderType.VertexShader, vertexShaderSource)
             .AddShaderFromString(ShaderType.FragmentShader, fragmentShaderSource)
             .Build();
 
-        u_ResolutionLocation = program.GetUniformLocation("u_Resolution");
+        program.BindUniformBlock("UBO", uboBinding);
     }
 
     public void Use()
@@ -22,61 +22,39 @@ internal class LineGLProgram : IDisposable
         program.Dispose();
     }
 
-    public (float, float) U_Resolution
-    {
-        set
-        {
-            Use();
-            GL.Uniform2f(u_ResolutionLocation, value.Item1, value.Item2);
-        }
-    }
-
     private GLProgram program;
-
-    private int u_ResolutionLocation;
 
     private const string vertexShaderSource = """
         #version 330 core
         layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec2 aFrom;
-        layout(location = 2) in vec2 aTo;
+        layout(location = 1) in vec2 aStart;
+        layout(location = 2) in vec2 aEnd;
         layout(location = 3) in vec4 aColor;
         layout(location = 4) in float aWidth;
 
-        uniform vec2 u_Resolution;
+        layout(std140) uniform UBO
+        {
+            vec2 screenResolution;
+        };
 
         out vec4 Color;
 
-        vec2 toSpace(vec2 point)
+        vec2 toScreenSpace(vec2 point)
         {
-            float aspectRatio = u_Resolution.y / u_Resolution.x;
-
-        // Adjust the point to normalized device coordinates with aspect ratio correction
-        vec2 val = vec2(
-            (point.x / u_Resolution.x * 2.0 - 1.0),
-            1.0 - point.y / u_Resolution.y * 2.0
-        );
-
-        return vec2(val.x, val.y);
-        }
-
-        float toWidth(float width)
-        {
-            float value = 1.0 / u_Resolution.y * width;
-            return value;
+            return vec2(
+                (point.x / screenResolution.x * 2.0 - 1.0), // x
+                1.0 - point.y / screenResolution.y * 2.0    // y
+            );
         }
 
         void main()
         {
-            vec2 start = aFrom;
-            vec2 end = aTo;
-
-            vec2 xBasis = end - start;
+            vec2 xBasis = aEnd - aStart;
             vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
-            vec2 point = start + xBasis * aPos.x + yBasis * aWidth * aPos.y;
+            vec2 point = aStart + xBasis * aPos.x + yBasis * aWidth * aPos.y;
             Color = aColor;
             
-            gl_Position = vec4(toSpace(point), 0.0, 1.0);
+            gl_Position = vec4(toScreenSpace(point), 0.0, 1.0);
         }
         """;
 

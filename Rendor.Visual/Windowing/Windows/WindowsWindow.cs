@@ -1,3 +1,4 @@
+﻿using Rendor.Visual.Drawing;
 ﻿using Rendor.Visual.Rendering;
 using Rendor.Visual.Rendering.OpenGL;
 using System.Runtime.InteropServices;
@@ -129,7 +130,7 @@ public partial class WindowsWindow : NativeWindow
         protected set
         {
             graphicsdevice = value;
-            graphicsdevice.U_Resolution = (Width, Height);
+            graphicsdevice.ScreenResolution = new Vector2f(Width, Height);
         }
     }
     private GraphicsDevice graphicsdevice;

@@ -16,5 +16,5 @@ public abstract class GraphicsDevice : IDisposable
 
     public abstract void Dispose();
 
-    public abstract (float, float) U_Resolution { set; }
+    public abstract Vector2f ScreenResolution { set; }
 }

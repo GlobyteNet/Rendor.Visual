@@ -5,11 +5,11 @@ namespace Rendor.Visual.Rendering.OpenGL
 {
     internal class MeshGLRenderer
     {
-        public MeshGLRenderer()
+        public MeshGLRenderer(uint uboBinding)
         {
             vertexBuffer = new GLBuffer<ColorPoint>();
             vertexArray = new VertexArray();
-            program = new MeshGLProgram();
+            program = new MeshGLProgram(uboBinding);
 
             vertexArray.AddPoint3f(vertexBuffer, 0, 28, 0); // position
             vertexArray.AddPoint4f(vertexBuffer, 1, 28, 12); // color
@@ -26,11 +26,6 @@ namespace Rendor.Visual.Rendering.OpenGL
             GL.DrawArrays(DrawMode.Triangles, 0, command.Meshes.Count);
 
             vertexArray.Unbind();
-        }
-
-        public (float, float) U_Resolution
-        {
-            set => program.U_Resolution = value;
         }
 
         private GLBuffer<ColorPoint> vertexBuffer;

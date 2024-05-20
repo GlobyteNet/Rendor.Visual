@@ -7,14 +7,14 @@ namespace Rendor.Visual.Rendering.OpenGL;
 /// </summary>
 public class MeshGLProgram : IDisposable
 {
-    public MeshGLProgram()
+    public MeshGLProgram(uint uboBInding)
     {
         var builder = new GLProgramBuilder();
         program = builder.AddShaderFromString(ShaderType.VertexShader, vertexShaderSource)
             .AddShaderFromString(ShaderType.FragmentShader, fragmentShaderSource)
             .Build();
 
-        uniformResolutionLocation = program.GetUniformLocation("u_Resolution");
+        program.BindUniformBlock("UBO", uboBInding);
     }
 
     public void Use()
@@ -27,15 +27,6 @@ public class MeshGLProgram : IDisposable
         program.Dispose();
     }
 
-    public (float, float) U_Resolution
-    {
-        set
-        {
-            Use();
-            GL.Uniform2f(uniformResolutionLocation, value.Item1, value.Item2);
-        }
-    }
-
     private readonly int uniformResolutionLocation;
 
     private GLProgram program;
@@ -46,13 +37,16 @@ public class MeshGLProgram : IDisposable
         layout (location = 0) in vec3 aPos;
         layout (location = 1) in vec4 aColor;
 
-        out vec4 ourColor;
+        layout(std140) uniform UBO
+        {
+            vec2 screenResolution;
+        };
 
-        uniform vec2 u_Resolution;
+        out vec4 ourColor;
 
         void main()
         {
-        	gl_Position = vec4(aPos.x / u_Resolution.x * 2.0 - 1.0, 1.0 - aPos.y / u_Resolution.y * 2.0, aPos.z, 1.0);
+        	gl_Position = vec4(aPos.x / screenResolution.x * 2.0 - 1.0, 1.0 - aPos.y / screenResolution.y * 2.0, aPos.z, 1.0);
         	ourColor = aColor;
         }
         """";
