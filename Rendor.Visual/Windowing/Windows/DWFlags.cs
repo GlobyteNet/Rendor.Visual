@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the flags for the pixel format descriptor.
 /// </summary>
-enum DWFlags : uint
+internal enum DWFlags : uint
 {
     PFD_DRAW_TO_WINDOW = 0x00000004,
     PFD_SUPPORT_OPENGL = 0x00000020,

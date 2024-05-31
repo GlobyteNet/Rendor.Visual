@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Windowing;
 
+/// <summary>
+/// Represents a native window as it is seen by the operating system. Usually users will want to have a better abstraction provided by <see cref="Window"/> class.
+/// </summary>
 public abstract class NativeWindow : IDisposable
 {
     public static NativeWindow Create(BackendType backend)

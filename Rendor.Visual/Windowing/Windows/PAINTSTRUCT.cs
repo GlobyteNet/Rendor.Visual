@@ -1,11 +1,21 @@
-﻿namespace Rendor.Visual.Windowing.Windows;
+﻿using System.Runtime.InteropServices;
 
-unsafe struct PAINTSTRUCT
+using HDC = nint;
+using BOOL = int;
+using BYTE = byte;
+
+namespace Rendor.Visual.Windowing.Windows;
+
+/// <summary>
+/// Mirrors the winuser.h PAINTSTRUCT structure.
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
+internal struct PAINTSTRUCT
 {
-    public nint hdc;
-    public bool fErase;
+    public HDC hdc;
+    public BOOL fErase;
     public RECT rcPaint;
-    public bool fRestore;
-    public bool fIncUpdate;
-    public fixed byte rgbReserved[32];
+    public BOOL fRestore;
+    public BOOL fIncUpdate;
+    unsafe public fixed BYTE rgbReserved[32];
 }

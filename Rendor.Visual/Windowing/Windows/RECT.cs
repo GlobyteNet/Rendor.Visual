@@ -1,12 +1,14 @@
 ﻿using System.Runtime.InteropServices;
 
+using LONG = int;
+
 namespace Rendor.Visual.Windowing.Windows;
 
 /// <summary>
 /// Mirrors the windef.h RECT structure.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct RECT
+internal struct RECT
 {
-    public int Left, Top, Right, Bottom;
+    public LONG Left, Top, Right, Bottom;
 }

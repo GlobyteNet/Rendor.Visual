@@ -49,6 +49,7 @@ namespace Rendor.Visual.Windowing
             nativeWindow.SwapBuffers();
             sw.Stop();
             Console.WriteLine($"SwapBuffers time: {sw.ElapsedMilliseconds}ms");
+            nativeWindow.Surface.Clear();
         }
 
         private NativeWindow nativeWindow;

@@ -27,6 +27,7 @@ internal class GLGraphicsDevice : GraphicsDevice
 
         lineRenderer = new LineGLRenderer(UBO_BINDING);
         meshRenderer = new MeshGLRenderer(UBO_BINDING);
+        bevelJoinRenderer = new BevelJoinGLRenderer(UBO_BINDING);
     }
 
     public override void Clear()
@@ -60,6 +61,10 @@ internal class GLGraphicsDevice : GraphicsDevice
             {
                 meshRenderer.Render(drawMeshCommand);
             }
+            else if (command is DrawBevelJoinCommand drawBevelJoinCommand)
+            {
+                bevelJoinRenderer.Render(drawBevelJoinCommand);
+            }
             else
             {
                 throw new NotImplementedException("Command not implemented");
@@ -87,6 +92,7 @@ internal class GLGraphicsDevice : GraphicsDevice
 
     private LineGLRenderer lineRenderer;
     private MeshGLRenderer meshRenderer;
+    private BevelJoinGLRenderer bevelJoinRenderer;
 
     private GLBuffer<Vector2f> ubo;
     private const int UBO_BINDING = 0;

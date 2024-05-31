@@ -39,7 +39,7 @@ namespace Rendor.Visual.Rendering.OpenGL
         private VertexArray vertexArray;
         private LineGLProgram program;
 
-        private Vector2f[] LineInstance =
+        private static Vector2f[] LineInstance =
         [
             new Vector2f(0.0f, -0.5f),
             new Vector2f(1.0f, -0.5f),

@@ -1,5 +1,5 @@
 ﻿using Rendor.Visual.Drawing;
-﻿using Rendor.Visual.Rendering;
+using Rendor.Visual.Rendering;
 using Rendor.Visual.Rendering.OpenGL;
 using System.Runtime.InteropServices;
 

@@ -4,6 +4,60 @@ using System.Runtime.InteropServices;
 namespace Rendor.Visual.Rendering.OpenGL;
 
 /// <summary>
+/// Small helper struct to load the OpenGL library and its functions and free native library when done.
+/// </summary>
+internal struct OpenGLLibrary : IDisposable
+{
+    public OpenGLLibrary()
+    {
+        (lib, GetProcAddress) = GetNativeLibrary();
+    }
+
+    public void LoadFunction<TDelegate>(out TDelegate function, string name)
+        where TDelegate : Delegate
+    {
+        nint ptr = GetProcAddress(name);
+
+        // If the function is not found, try to get it from the library itself.
+        // Some drivers do not expose original OpenGL functions through GetProcAddress.
+        if (ptr == IntPtr.Zero)
+            ptr = NativeLibrary.GetExport(lib, name);
+
+        if (ptr == IntPtr.Zero)
+            throw new EntryPointNotFoundException($"Could not find function {name}");
+
+        function = Marshal.GetDelegateForFunctionPointer<TDelegate>(ptr);
+    }
+
+    public void Dispose()
+    {
+        NativeLibrary.Free(lib);
+        lib = IntPtr.Zero;
+        GetProcAddress = null!;
+    }
+
+    private (nint, GetProcAddressDelegate) GetNativeLibrary()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            nint lib = NativeLibrary.Load("opengl32.dll");
+            nint getProcAddressPtr = NativeLibrary.GetExport(lib, "wglGetProcAddress");
+
+            return (lib, Marshal.GetDelegateForFunctionPointer<GetProcAddressDelegate>(getProcAddressPtr));
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("Only Windows is supported at this time");
+        }
+    }
+
+    nint lib;
+    GetProcAddressDelegate GetProcAddress;
+
+    delegate nint GetProcAddressDelegate(string procName);
+}
+
+/// <summary>
 /// Provides access to OpenGL functions.
 /// </summary>
 internal static class GL
@@ -12,84 +66,53 @@ internal static class GL
 
     static GL()
     {
-        GetProcAddress = GetProcAddressFunction();
+        using var lib = new OpenGLLibrary();
 
-        LoadFunction(out glAttachShader, nameof(glAttachShader));
-        LoadFunction(out glBindBuffer, nameof(glBindBuffer));
-        LoadFunction(out glBindBufferBase, nameof(glBindBufferBase));
-        LoadFunction(out glBindVertexArray, nameof(glBindVertexArray));
-        LoadFunction(out glBufferData, nameof(glBufferData));
-        LoadFunction(out glBufferSubData, nameof(glBufferSubData));
-        LoadFunction(out glClear, nameof(glClear));
-        LoadFunction(out glClearColor, nameof(glClearColor));
-        LoadFunction(out glCompileShader, nameof(glCompileShader));
-        LoadFunction(out glCreateProgram, nameof(glCreateProgram));
-        LoadFunction(out glCreateShader, nameof(glCreateShader));
-        LoadFunction(out glCullFace, nameof(glCullFace));
-        LoadFunction(out glDebugMessageCallback, nameof(glDebugMessageCallback));
-        LoadFunction(out glDeleteBuffers, nameof(glDeleteBuffers));
-        LoadFunction(out glDeleteProgram, nameof(glDeleteProgram));
-        LoadFunction(out glDeleteShader, nameof(glDeleteShader));
-        LoadFunction(out glDeleteVertexArrays, nameof(glDeleteVertexArrays));
-        LoadFunction(out glDrawArrays, nameof(glDrawArrays));
-        LoadFunction(out glDrawArraysInstanced, nameof(glDrawArraysInstanced));
-        LoadFunction(out glDrawElements, nameof(glDrawElements));
-        LoadFunction(out glEnable, nameof(glEnable));
-        LoadFunction(out glEnableVertexAttribArray, nameof(glEnableVertexAttribArray));
-        LoadFunction(out glFlush, nameof(glFlush));
-        LoadFunction(out glGenBuffers, nameof(glGenBuffers));
-        LoadFunction(out glGenVertexArrays, nameof(glGenVertexArrays));
-        LoadFunction(out glGetProgramInfoLog, nameof(glGetProgramInfoLog));
-        LoadFunction(out glGetProgramiv, nameof(glGetProgramiv));
-        LoadFunction(out glGetShaderInfoLog, nameof(glGetShaderInfoLog));
-        LoadFunction(out glGetShaderiv, nameof(glGetShaderiv));
-        LoadFunction(out glGetUniformBlockIndex, nameof(glGetUniformBlockIndex));
-        LoadFunction(out glGetUniformLocation, nameof(glGetUniformLocation));
-        LoadFunction(out glLinkProgram, nameof(glLinkProgram));
-        LoadFunction(out glShaderSource, nameof(glShaderSource));
-        LoadFunction(out glUniformBlockBinding, nameof(glUniformBlockBinding));
-        LoadFunction(out glUseProgram, nameof(glUseProgram));
-        LoadFunction(out glVertexAttribDivisor, nameof(glVertexAttribDivisor));
-        LoadFunction(out glVertexAttribPointer, nameof(glVertexAttribPointer));
-        LoadFunction(out glViewport, nameof(glViewport));
-        LoadFunction(out glUniform2f, nameof(glUniform2f));
-        LoadFunction(out glUniform4f, nameof(glUniform4f));
+        lib.LoadFunction(out glAttachShader, nameof(glAttachShader));
+        lib.LoadFunction(out glBindBuffer, nameof(glBindBuffer));
+        lib.LoadFunction(out glBindBufferBase, nameof(glBindBufferBase));
+        lib.LoadFunction(out glBindVertexArray, nameof(glBindVertexArray));
+        lib.LoadFunction(out glBufferData, nameof(glBufferData));
+        lib.LoadFunction(out glBufferSubData, nameof(glBufferSubData));
+        lib.LoadFunction(out glClear, nameof(glClear));
+        lib.LoadFunction(out glClearColor, nameof(glClearColor));
+        lib.LoadFunction(out glCompileShader, nameof(glCompileShader));
+        lib.LoadFunction(out glCreateProgram, nameof(glCreateProgram));
+        lib.LoadFunction(out glCreateShader, nameof(glCreateShader));
+        lib.LoadFunction(out glCullFace, nameof(glCullFace));
+        lib.LoadFunction(out glDebugMessageCallback, nameof(glDebugMessageCallback));
+        lib.LoadFunction(out glDeleteBuffers, nameof(glDeleteBuffers));
+        lib.LoadFunction(out glDeleteProgram, nameof(glDeleteProgram));
+        lib.LoadFunction(out glDeleteShader, nameof(glDeleteShader));
+        lib.LoadFunction(out glDeleteVertexArrays, nameof(glDeleteVertexArrays));
+        lib.LoadFunction(out glDrawArrays, nameof(glDrawArrays));
+        lib.LoadFunction(out glDrawArraysInstanced, nameof(glDrawArraysInstanced));
+        lib.LoadFunction(out glDrawElements, nameof(glDrawElements));
+        lib.LoadFunction(out glEnable, nameof(glEnable));
+        lib.LoadFunction(out glEnableVertexAttribArray, nameof(glEnableVertexAttribArray));
+        lib.LoadFunction(out glFlush, nameof(glFlush));
+        lib.LoadFunction(out glGenBuffers, nameof(glGenBuffers));
+        lib.LoadFunction(out glGenVertexArrays, nameof(glGenVertexArrays));
+        lib.LoadFunction(out glGetProgramInfoLog, nameof(glGetProgramInfoLog));
+        lib.LoadFunction(out glGetProgramiv, nameof(glGetProgramiv));
+        lib.LoadFunction(out glGetShaderInfoLog, nameof(glGetShaderInfoLog));
+        lib.LoadFunction(out glGetShaderiv, nameof(glGetShaderiv));
+        lib.LoadFunction(out glGetUniformBlockIndex, nameof(glGetUniformBlockIndex));
+        lib.LoadFunction(out glGetUniformLocation, nameof(glGetUniformLocation));
+        lib.LoadFunction(out glLinkProgram, nameof(glLinkProgram));
+        lib.LoadFunction(out glShaderSource, nameof(glShaderSource));
+        lib.LoadFunction(out glUniformBlockBinding, nameof(glUniformBlockBinding));
+        lib.LoadFunction(out glUseProgram, nameof(glUseProgram));
+        lib.LoadFunction(out glVertexAttribDivisor, nameof(glVertexAttribDivisor));
+        lib.LoadFunction(out glVertexAttribPointer, nameof(glVertexAttribPointer));
+        lib.LoadFunction(out glViewport, nameof(glViewport));
+        lib.LoadFunction(out glUniform2f, nameof(glUniform2f));
+        lib.LoadFunction(out glUniform4f, nameof(glUniform4f));
 
-        LoadFunction(out glGetError, nameof(glGetError));
+        lib.LoadFunction(out glGetError, nameof(glGetError));
 
         Enable(GLCapability.DebugOutput);
         DebugMessageCallback(debugProc, IntPtr.Zero);
-    }
-
-    private static GetProcAddressDelegate GetProcAddressFunction()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            nint lib = NativeLibrary.Load("opengl32.dll");
-            nint getProcAddressPtr = NativeLibrary.GetExport(lib, "wglGetProcAddress");
-
-            return Marshal.GetDelegateForFunctionPointer<GetProcAddressDelegate>(getProcAddressPtr);
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("Only Windows is supported at this time");
-        }
-    }
-
-    delegate nint GetProcAddressDelegate(string procName);
-    static GetProcAddressDelegate GetProcAddress;
-
-    private static void LoadFunction<TDelegate>(out TDelegate function, string name)
-        where TDelegate : Delegate
-    {
-        nint ptr = GetProcAddress(name);
-
-        if (ptr == 0)
-        {
-            throw new EntryPointNotFoundException($"Could not find function {name}");
-        }
-
-        function = Marshal.GetDelegateForFunctionPointer<TDelegate>(ptr);
     }
 
     #endregion

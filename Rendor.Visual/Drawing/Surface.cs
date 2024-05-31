@@ -19,7 +19,7 @@ public class Surface
 
     public void DrawPath(Path path, Paint paint)
     {
-        DrawLineCap(path.Points[1], path.Points[0], paint);
+        //DrawLineCap(path.Points[1], path.Points[0], paint);
 
         for (int i = 0; i < path.Points.Count - 1; i++)
         {
@@ -31,7 +31,7 @@ public class Surface
             }
         }
 
-        DrawLineCap(path.Points[^2], path.Points[^1], paint);
+        //DrawLineCap(path.Points[^2], path.Points[^1], paint);
     }
 
     public void DrawLine(Point a, Point b, Paint paint)
@@ -144,6 +144,15 @@ public class Surface
 
     private void DrawLineJoinBevel(Point a, Point b, Point c, Paint paint)
     {
+        if (!TryGetLastCommand(out DrawBevelJoinCommand? command))
+        {
+            command = new DrawBevelJoinCommand();
+            drawCommands.Add(command);
+        }
+
+        command.LineSegments.Add(new LineSegment(a, b, c, paint.Color, paint.LineWidth));
+        return;
+
         var tangent = Point.Normalize(Point.Normalize(c - b) + Point.Normalize(b - a));
         var normal = new Point(-tangent.Y, tangent.X, 0.0f);
 

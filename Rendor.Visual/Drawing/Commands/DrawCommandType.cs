@@ -3,6 +3,7 @@
     public enum DrawCommandType
     {
         Line,
-        Mesh
+        Mesh,
+        BevelJoin
     }
 }

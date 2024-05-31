@@ -1,37 +1,41 @@
 ﻿using System.Runtime.InteropServices;
 
+using WORD = ushort;
+using DWORD = uint;
+using BYTE = byte;
+
 namespace Rendor.Visual.Windowing.Windows;
 
 /// <summary>
 /// Mirrors the wingdi.h PIXELFORMATDESCRIPTOR structure.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-struct PIXELFORMATDESCRIPTOR
+internal struct PIXELFORMATDESCRIPTOR
 {
-    public ushort nSize;
-    public ushort nVersion;
-    public uint dwFlags;
-    public byte iPixelType;
-    public byte cColorBits;
-    public byte cRedBits;
-    public byte cRedShift;
-    public byte cGreenBits;
-    public byte cGreenShift;
-    public byte cBlueBits;
-    public byte cBlueShift;
-    public byte cAlphaBits;
-    public byte cAlphaShift;
-    public byte cAccumBits;
-    public byte cAccumRedBits;
-    public byte cAccumGreenBits;
-    public byte cAccumBlueBits;
-    public byte cAccumAlphaBits;
-    public byte cDepthBits;
-    public byte cStencilBits;
-    public byte cAuxBuffers;
-    public byte iLayerType;
-    public byte bReserved;
-    public uint dwLayerMask;
-    public uint dwVisibleMask;
-    public uint dwDamageMask;
+    public WORD nSize;
+    public WORD nVersion;
+    public DWORD dwFlags;
+    public BYTE iPixelType;
+    public BYTE cColorBits;
+    public BYTE cRedBits;
+    public BYTE cRedShift;
+    public BYTE cGreenBits;
+    public BYTE cGreenShift;
+    public BYTE cBlueBits;
+    public BYTE cBlueShift;
+    public BYTE cAlphaBits;
+    public BYTE cAlphaShift;
+    public BYTE cAccumBits;
+    public BYTE cAccumRedBits;
+    public BYTE cAccumGreenBits;
+    public BYTE cAccumBlueBits;
+    public BYTE cAccumAlphaBits;
+    public BYTE cDepthBits;
+    public BYTE cStencilBits;
+    public BYTE cAuxBuffers;
+    public BYTE iLayerType;
+    public BYTE bReserved;
+    public DWORD dwLayerMask;
+    public DWORD dwVisibleMask;
+    public DWORD dwDamageMask;
 }

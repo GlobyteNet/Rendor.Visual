@@ -1,5 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 
+using HWND = nint;
+using UINT = uint;
+using WPARAM = nuint;
+using LPARAM = nint;
+using DWORD = uint;
+
 namespace Rendor.Visual.Windowing.Windows;
 
 /// <summary>
@@ -8,10 +14,10 @@ namespace Rendor.Visual.Windowing.Windows;
 [StructLayout(LayoutKind.Sequential)]
 internal struct MSG
 {
-    public nint hwnd;
-    public uint message;
-    public nuint wParam;
-    public nint lParam;
-    public uint time;
+    public HWND hwnd;
+    public UINT message;
+    public WPARAM wParam;
+    public LPARAM lParam;
+    public DWORD time;
     public POINT pt;
 }

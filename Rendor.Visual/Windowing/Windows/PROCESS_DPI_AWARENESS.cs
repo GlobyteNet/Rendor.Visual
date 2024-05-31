@@ -3,7 +3,7 @@
 /// <summary>
 /// Mirrors the shellscalingapi.h PROCESS_DPI_AWARENESS enum.
 /// </summary>
-public enum PROCESS_DPI_AWARENESS
+internal enum PROCESS_DPI_AWARENESS
 {
     ProcessDpiUnaware = 0,
     ProcessSystemDpiAware = 1,
