@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Rendor.Visual.Drawing;
 
@@ -46,21 +45,6 @@ public class Surface
             command.Lines.Add(new Line(a, b, paint.Color, paint.LineWidth));
             drawCommands.Add(command);
         }
-        return;
-
-        var xBasis = b - a;
-        // calculate the perpendicular vector of length 1
-        var yBasis = Point.Normalize(new Point(-xBasis.Y, xBasis.X, 0.0f));
-
-        var points = new Point[6];
-        for (int i = 0; i < 6; i++)
-        {
-            // calculate the points of the line by using instance data
-            points[i] = a + xBasis * LineInstance[i].X + yBasis * paint.LineWidth * LineInstance[i].Y;
-        }
-
-        FillTriangle(points[0], points[1], points[2], paint);
-        FillTriangle(points[3], points[4], points[5], paint);
     }
 
     private void DrawLineCap(Point a, Point b, Paint paint)
@@ -151,28 +135,6 @@ public class Surface
         }
 
         command.LineSegments.Add(new LineSegment(a, b, c, paint.Color, paint.LineWidth));
-        return;
-
-        var tangent = Point.Normalize(Point.Normalize(c - b) + Point.Normalize(b - a));
-        var normal = new Point(-tangent.Y, tangent.X, 0.0f);
-
-        var ab = b - a;
-        var bc = b - c;
-        var abNorm = Point.Normalize(new Point(-ab.Y, ab.X));
-        var bcNorm = -Point.Normalize(new Point(-bc.Y, bc.X));
-
-        var sigma = MathF.Sign(Point.Dot(ab + bc, normal));
-
-        var p0 = 0.5f * paint.LineWidth * sigma * (sigma < 0 ? abNorm : bcNorm);
-        var p1 = 0.5f * paint.LineWidth * sigma * (sigma < 0 ? bcNorm : abNorm);
-
-        var points = new Point[3];
-        for ( var i = 0; i < 3; i++ )
-        {
-            points[i] = b + BevelJoin[i].X * p0 + BevelJoin[i].Y * p1;
-        }
-
-        FillTriangle(points[0], points[1], points[2], paint);
     }
 
     public void DrawTriangle(Point a, Point b, Point c, Paint paint)
@@ -229,10 +191,6 @@ public class Surface
             newCommand.Meshes.Add(new ColorPoint(paint.Color, c));
             drawCommands.Add(newCommand);
         }
-
-        //points.Add(new ColorPoint(paint.Color, a));
-        //points.Add(new ColorPoint(paint.Color, b));
-        //points.Add(new ColorPoint(paint.Color, c));
     }
 
     private static Point[] GetCircleGeometry(int resolution)
@@ -295,47 +253,4 @@ public class Surface
     ];
 
     private Point[] CircleInstance = GetCircleGeometry(16);
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct Line
-{
-    public Line(Point start, Point end, Color color, float width)
-    {
-        Start = new Vector2f(start.X, start.Y);
-        End = new Vector2f(end.X, end.Y);
-        Color = color;
-        Width = width;
-    }
-
-    public Vector2f Start { get; set; }
-    public Vector2f End { get; set; }
-
-    public Color Color { get; set; }
-    public float Width { get; set; }
-
-    public Point Intersect(Line another)
-    {
-        var x1 = Start.X;
-        var y1 = Start.Y;
-        var x2 = End.X;
-        var y2 = End.Y;
-
-        var x3 = another.Start.X;
-        var y3 = another.Start.Y;
-        var x4 = another.End.X;
-        var y4 = another.End.Y;
-
-        var d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-        if (d == 0)
-        {
-            return new Point(0.0f, 0.0f, 0.0f);
-        }
-
-        var x = ((x3 - x4) * (x1 * y2 - y1 * x2) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
-        var y = ((y3 - y4) * (x1 * y2 - y1 * x2) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
-
-        return new Point(x, y, 0.0f);
-    }
 }

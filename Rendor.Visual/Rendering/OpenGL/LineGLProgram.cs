@@ -27,8 +27,8 @@ internal class LineGLProgram : IDisposable
     private const string vertexShaderSource = """
         #version 330 core
         layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec2 aStart;
-        layout(location = 2) in vec2 aEnd;
+        layout(location = 1) in vec3 aStart;
+        layout(location = 2) in vec3 aEnd;
         layout(location = 3) in vec4 aColor;
         layout(location = 4) in float aWidth;
 
@@ -39,22 +39,23 @@ internal class LineGLProgram : IDisposable
 
         out vec4 Color;
 
-        vec2 toScreenSpace(vec2 point)
+        vec3 toScreenSpace(vec3 point)
         {
-            return vec2(
+            return vec3(
                 (point.x / screenResolution.x * 2.0 - 1.0), // x
-                1.0 - point.y / screenResolution.y * 2.0    // y
+                1.0 - point.y / screenResolution.y * 2.0,   // y
+                point.z
             );
         }
 
         void main()
         {
-            vec2 xBasis = aEnd - aStart;
-            vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
-            vec2 point = aStart + xBasis * aPos.x + yBasis * aWidth * aPos.y;
+            vec3 xBasis = aEnd - aStart;
+            vec3 yBasis = normalize(vec3(-xBasis.y, xBasis.x, 0));
+            vec3 point = aStart + xBasis * aPos.x + yBasis * aWidth * aPos.y;
             Color = aColor;
             
-            gl_Position = vec4(toScreenSpace(point), 0.0, 1.0);
+            gl_Position = vec4(toScreenSpace(point), 1.0);
         }
         """;
 
